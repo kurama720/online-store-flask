@@ -1,6 +1,7 @@
 import datetime
 
 from sqlalchemy import Column, Integer, String, Text, DateTime
+from sqlalchemy.orm import relationship
 
 from backend.db import db
 
@@ -12,10 +13,7 @@ class User(db.Model):
     email = Column(String(120), unique=True, nullable=False)
     password = Column(Text, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now())
-
-    def __init__(self, email, password):
-        self.email = email
-        self.password = password
+    products = relationship('Product', backref='owned_products')
 
     def __repr__(self):
         return f"User: {self.email}"
