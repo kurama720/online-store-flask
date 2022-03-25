@@ -89,16 +89,6 @@ def get_products():
     return jsonify({'products': products_list}), HTTP_200_OK
 
 
-@shop.post('/create_category')
-def create_category():
-    name = request.json.get('name')
-    category = Category(name=name)
-
-    db.session.add(category)
-    db.session.commit()
-    return jsonify({'message': 'Category created', 'Category': name})
-
-
 @shop.delete('/delete_product/<int:product_id>')
 @jwt_required()
 def delete_product(product_id):
