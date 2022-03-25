@@ -10,7 +10,7 @@ from backend.accounts.models import User
 class Category(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(200))
-    products = relationship('Product', backref='product_list')
+    products = relationship('Product', backref='category')
 
     def __repr__(self):
         return f"Category: {self.name}"
@@ -21,8 +21,8 @@ category_name_index = Index('category_name', Category.name)
 
 class Product(db.Model):
     id = Column(Integer, primary_key=True)
-    category = Column(Integer, ForeignKey('category.id'))
-    owner = Column(Integer, ForeignKey(User.id))
+    category_id = Column(Integer, ForeignKey('category.id'), nullable=False)
+    owner_id = Column(Integer, ForeignKey(User.id), nullable=False)
     name = Column(String(200), nullable=False)
     image = Column(String(400))
     description = Column(Text)

@@ -77,8 +77,8 @@ def get_products():
         # Save product data in the list
         products_list.append({
             'id': product.id,
-            'category': Category.query.filter_by(id=product.category).first().name,
-            'owner': User.query.filter_by(id=product.owner).first().email,
+            'category': Category.query.filter_by(id=product.category_id).first().name,
+            'owner': User.query.filter_by(id=product.owner_id).first().email,
             'name': product.name,
             'image': product.image,
             'description': product.description,

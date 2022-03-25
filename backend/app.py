@@ -8,6 +8,8 @@ from backend.db import db
 from backend.config import DevelopmentConfig
 from backend.accounts.views import auth
 from backend.shop.views import shop
+from backend.admin.admin import admin
+from backend.admin.views import admin_managing
 
 
 def create_app(test_config=None):
@@ -26,8 +28,11 @@ def create_app(test_config=None):
     migrate.init_app(app, db, compare_type=True)
     # Make JWTManager
     JWTManager(app)
+    # Initialize admin
+    admin.init_app(app)
     # Register services
     app.register_blueprint(auth)
     app.register_blueprint(shop)
+    app.register_blueprint(admin_managing)
 
     return app
