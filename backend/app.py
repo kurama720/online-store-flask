@@ -10,6 +10,7 @@ from backend.accounts.views import auth
 from backend.shop.views import shop
 from backend.admin.admin import admin
 from backend.admin.views import admin_managing
+from backend.cart.views import cart
 
 
 def create_app(test_config=None):
@@ -34,5 +35,6 @@ def create_app(test_config=None):
     app.register_blueprint(auth)
     app.register_blueprint(shop)
     app.register_blueprint(admin_managing)
+    app.register_blueprint(cart)
 
     return app

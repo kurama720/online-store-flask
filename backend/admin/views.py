@@ -10,6 +10,7 @@ from backend.constants.http_response_codes import HTTP_400_BAD_REQUEST,\
                                                   HTTP_200_OK,\
                                                   HTTP_401_UNAUTHORIZED
 from backend.db import db
+from backend.shop.models import Category
 
 
 admin_managing = Blueprint('admin_managing', __name__, url_prefix='/admin_managing')
@@ -60,3 +61,14 @@ def login_admin():
         }), HTTP_200_OK
 
     return jsonify({'error': 'Wrong credentials'}), HTTP_401_UNAUTHORIZED
+
+
+@admin_managing.post('/create_category')
+def create_category():
+    """Process POST request and create category."""
+    name = request.json.get('name')
+    category = Category(name=name)
+
+    db.session.add(category)
+    db.session.commit()
+    return jsonify({'message': f'Category: {name} was created'})

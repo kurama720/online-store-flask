@@ -25,7 +25,7 @@ def allowed_image(filename):
 def upload_product():
     """Process POST request and create product."""
     # Get owner id
-    current_user = get_jwt_identity()
+    current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
     # Get data of product
     category: str = request.form.get('category')
     name: str = request.form.get('name')
@@ -55,7 +55,7 @@ def upload_product():
         # Save None if no image was given
         image_path = None
     # Save product
-    product = Product(category=Category.query.filter_by(name=category).first().id,
+    product = Product(category=Category.query.filter_by(name=category).first(),
                       owner=current_user,
                       name=name,
                       image=image_path,
@@ -75,17 +75,19 @@ def get_products():
     products_list = []
     for product in products:
         # Save product data in the list
-        products_list.append({
-            'id': product.id,
-            'category': Category.query.filter_by(id=product.category_id).first().name,
-            'owner': User.query.filter_by(id=product.owner_id).first().email,
-            'name': product.name,
-            'image': product.image,
-            'description': product.description,
-            'price': float(product.price),
-            'created': product.created,
-            'updated': product.updated
-        })
+        if product.available:
+            category = Category.query.filter_by(id=product.category_id).first()
+            products_list.append({
+                'id': product.id,
+                'category': category.name if category is not None else 'Other',
+                'owner': User.query.filter_by(id=product.owner_id).first_or_404().email,
+                'name': product.name,
+                'image': product.image,
+                'description': product.description,
+                'price': float(product.price),
+                'created': product.created,
+                'updated': product.updated
+            })
     return jsonify({'products': products_list}), HTTP_200_OK
 
 
