@@ -77,10 +77,11 @@ def get_products():
         # Save product data in the list
         if product.available:
             category = Category.query.filter_by(id=product.category_id).first()
+            owner = User.query.filter_by(id=product.owner_id).first()
             products_list.append({
                 'id': product.id,
                 'category': category.name if category is not None else 'Other',
-                'owner': User.query.filter_by(id=product.owner_id).first_or_404().email,
+                'owner': owner.email if owner is not None else "Owner's account was deleted",
                 'name': product.name,
                 'image': product.image,
                 'description': product.description,

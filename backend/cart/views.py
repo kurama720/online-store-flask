@@ -1,6 +1,9 @@
 from flask import session, Blueprint, request, jsonify
 
-from backend.constants.http_response_codes import HTTP_201_CREATED, HTTP_200_OK
+from backend.constants.http_response_codes import HTTP_201_CREATED,\
+                                                  HTTP_200_OK,\
+                                                  HTTP_400_BAD_REQUEST,\
+                                                  HTTP_404_NOT_FOUND
 from backend.shop.models import Product
 from backend.cart.cart import Cart
 
@@ -18,8 +21,12 @@ def cart_add(product_id):
     product = Product.query.filter_by(id=product_id).first_or_404()
     quantity = request.json.get('quantity', 1)
     override = request.json.get('override', False)
+    if quantity <= 0:
+        return jsonify({'message': 'Product quantity must be positive integer.'}), HTTP_400_BAD_REQUEST
+    if not isinstance(override, bool):
+        return jsonify({'message': 'Override param must be the logic type object.'}), HTTP_400_BAD_REQUEST
     cart.add(product=product, quantity=quantity, override_quantity=override)
-    return jsonify({'message': 'Product was add into cart successfully'}), HTTP_201_CREATED
+    return jsonify({'message': 'Product was added into cart successfully'}), HTTP_201_CREATED
 
 
 @cart.delete('/cart_remove/<int:product_id>')
@@ -30,6 +37,9 @@ def cart_remove(product_id):
     """
     cart = Cart(session)
     product = Product.query.filter_by(id=product_id).first_or_404()
+    # Check if product is in the cart
+    if not session['cart'].get(str(product.id)):
+        return jsonify({'message': 'Product is not in the cart'}), HTTP_404_NOT_FOUND
     cart.remove(product)
     return jsonify({'message': 'Product was removed from cart'}), HTTP_200_OK
 

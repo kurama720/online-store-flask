@@ -35,7 +35,7 @@ def create_admin():
 
     db.session.add(admin_user)
     db.session.commit()
-    return jsonify({"message": 'User created',
+    return jsonify({"message": 'Admin user created',
                     'user': {
                         'email': email
                     }}), HTTP_201_CREATED
@@ -52,8 +52,8 @@ def login_admin():
     is_pwd_correct = check_password_hash(admin_user.password, password)
     if is_pwd_correct:
         # Create tokens and return them
-        refresh = create_refresh_token(identity=admin_user.id)
-        access = create_access_token(identity=admin_user.id)
+        refresh = create_refresh_token(identity=admin_user.email)
+        access = create_access_token(identity=admin_user.email)
         return jsonify({
             'refresh': refresh,
             'access': access,
@@ -66,9 +66,11 @@ def login_admin():
 @admin_managing.post('/create_category')
 def create_category():
     """Process POST request and create category."""
-    name = request.json.get('name')
-    category = Category(name=name)
+    name = request.json.get('category')
+    if Category.query.filter_by(name=name).first() is not None:
+        return jsonify({'message': 'Category already exists'}), HTTP_409_CONFLICT
 
+    category = Category(name=name)
     db.session.add(category)
     db.session.commit()
-    return jsonify({'message': f'Category: {name} was created'})
+    return jsonify({'message': f'Category: {name} was created'}), HTTP_201_CREATED
