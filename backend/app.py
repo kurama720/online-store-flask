@@ -1,4 +1,5 @@
 """Main module for app factory function"""
+import os
 
 from flask import Flask
 from flask_jwt_extended import JWTManager
@@ -20,13 +21,13 @@ def create_app(test_config=None):
     if test_config is None:
         app.config.from_object(DevelopmentConfig())
     else:
-        app.config.from_mapping(test_config)
+        app.config.from_object(test_config)
     # Initialize db
     db.app = app
     db.init_app(app)
     # Initialize migrations
     migrate = Migrate()
-    migrate.init_app(app, db, compare_type=True)
+    migrate.init_app(app, db, compare_type=True, directory=os.environ.get('MIGRATIONS_DIR'))
     # Make JWTManager
     JWTManager(app)
     # Initialize admin

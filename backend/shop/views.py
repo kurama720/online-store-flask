@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename, safe_join
@@ -27,18 +28,17 @@ def upload_product():
     # Get owner id
     current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
     # Get data of product
-    category: str = request.form.get('category')
-    name: str = request.form.get('name')
+    category: str = request.json.get('category', None)
+    name: str = request.json.get('name')
     image = request.files.get('image')
-    description: str = request.form.get('description')
-    price: float = request.form.get('price')
+    description: str = request.json.get('description')
+    price: (float, int) = request.json.get('price')
     # Validate data of product
-    if Category.query.filter_by(name=category).first() is None:
-        return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
+    if category is not None:
+        if Category.query.filter_by(name=category).first() is None:
+            return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
     # Check if price is numeric and can be float
-    try:
-        float(price)
-    except ValueError:
+    if not isinstance(price, (float, int, Decimal)):
         return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
     # Check if image was uploaded
     if image is not None:
@@ -100,8 +100,8 @@ def delete_product(product_id):
     # Get product by id
     product = Product.query.filter_by(id=product_id).first_or_404()
     # Check if user is owner
-    if not current_user == product.owner:
-        return jsonify({'error': 'Only owner can delete the product.'})
+    if not current_user == product.owner_id:
+        return jsonify({'error': 'Only owner can delete the product.'}), HTTP_400_BAD_REQUEST
 
     db.session.delete(product)
     db.session.commit()
@@ -118,17 +118,18 @@ def update_product(product_id):
     # Get product by id
     product = Product.query.filter_by(id=product_id).first_or_404()
     # Check if user is owner
-    if not current_user == product.owner:
-        return jsonify({'error': 'Only owner can change the product'})
+    if not current_user == product.owner_id:
+        return jsonify({'error': 'Only owner can change the product'}), HTTP_400_BAD_REQUEST
     # Get data if was given else get old data
     category = request.json.get('category', product.category)
     name = request.json.get('name', product.category)
     description = request.json.get('description', product.description)
     price = request.json.get('price', product.price)
     # Validate new data
-    if Category.query.filter_by(name=category).first() is None:
-        return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
-    if not price.isalnum():
+    if category is not None:
+        if Category.query.filter_by(name=category).first() is None:
+            return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
+    if not isinstance(price, (float, int, Decimal)):
         return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
     # Save data
     product.category = category
@@ -142,5 +143,25 @@ def update_product(product_id):
         'category': product.category,
         'name': product.name,
         'description': product.description,
-        'price': product.price,
+        'price': float(product.price),
     })
+
+
+@shop.get('/products/<int:product_id>')
+def get_product_by_id(product_id):
+    """Process GET request and return product by id"""
+    # Get product by id or 404
+    product = Product.query.filter_by(id=product_id).first_or_404()
+    # Get product's category
+    category = Category.query.filter_by(id=product.category_id).first()
+    return jsonify({
+        'id': product.id,
+        'category': category.name if category is not None else 'Other',
+        'owner': User.query.filter_by(id=product.owner_id).first_or_404().email,
+        'name': product.name,
+        'image': product.image,
+        'description': product.description,
+        'price': float(product.price),
+        'created': product.created,
+        'updated': product.updated
+    }), HTTP_200_OK

@@ -21,7 +21,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: flask run
     ports:
       - "8000:8000"
     volumes:

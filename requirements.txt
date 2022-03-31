@@ -6,3 +6,6 @@ psycopg2-binary==2.9.3
 python-dotenv==0.19.2
 validators==0.18.2
 flask-admin==1.6.0
+pytest==7.1.1
+werkzeug==2.0.3
+sqlalchemy-utils==0.38.2

@@ -15,6 +15,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-WORKDIR /backend
+WORKDIR /
 
 CMD flask run

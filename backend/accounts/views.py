@@ -61,7 +61,7 @@ def login():
     return jsonify({'error': 'Wrong credentials'}), HTTP_401_UNAUTHORIZED
 
 
-@auth.get('info')
+@auth.get('/info')
 @jwt_required()
 def account_info():
     """Process GET request and return user's info"""
