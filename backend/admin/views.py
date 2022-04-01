@@ -64,12 +64,12 @@ def login_admin():
     return jsonify({'error': 'Wrong credentials'}), HTTP_401_UNAUTHORIZED
 
 
-@jwt_required()
 @admin_managing.post('/create_category')
+@jwt_required()
 def create_category():
     """Process POST request and create category."""
     current_user = get_jwt_identity()
-    user = User.query.filter(id=current_user).first_or_404()
+    user = User.query.filter_by(id=current_user).first_or_404()
     if not user.is_staff:
         return jsonify({'error': 'Permission denied'}), HTTP_403_FORBIDDEN
     name = request.json.get('category')
