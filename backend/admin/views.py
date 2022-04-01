@@ -1,16 +1,17 @@
 from flask import Blueprint, request, jsonify
 import validators
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_refresh_token, create_access_token
+from flask_jwt_extended import create_refresh_token, create_access_token, jwt_required, get_jwt_identity
 
-from backend.admin.models import AdminUser
 from backend.constants.http_response_codes import HTTP_400_BAD_REQUEST,\
                                                   HTTP_409_CONFLICT,\
                                                   HTTP_201_CREATED,\
                                                   HTTP_200_OK,\
-                                                  HTTP_401_UNAUTHORIZED
+                                                  HTTP_401_UNAUTHORIZED, \
+                                                  HTTP_403_FORBIDDEN
 from backend.db import db
 from backend.shop.models import Category
+from backend.accounts.models import User
 
 
 admin_managing = Blueprint('admin_managing', __name__, url_prefix='/admin_managing')
@@ -27,11 +28,11 @@ def create_admin():
         return jsonify({'error': 'Password is too short'}), HTTP_400_BAD_REQUEST
     if not validators.email(email):
         return jsonify({'error': 'Email is not valid'}), HTTP_400_BAD_REQUEST
-    if AdminUser.query.filter_by(email=email).first() is not None:
+    if User.query.filter_by(email=email).first() is not None:
         return jsonify({'error': 'Email already exists'}), HTTP_409_CONFLICT
     # Hash password and save the admin user
     pwd_hash = generate_password_hash(password)
-    admin_user = AdminUser(email=email, password=pwd_hash, is_staff=True)
+    admin_user = User(email=email, password=pwd_hash, is_staff=True)
 
     db.session.add(admin_user)
     db.session.commit()
@@ -47,13 +48,13 @@ def login_admin():
     # Get credentials
     email = request.json.get('email', '')
     password = request.json.get('password', '')
-    admin_user = AdminUser.query.filter_by(email=email).first_or_404()
+    admin_user = User.query.filter_by(email=email).first_or_404()
     # Compare given password hash and password hash in database
     is_pwd_correct = check_password_hash(admin_user.password, password)
     if is_pwd_correct:
         # Create tokens and return them
-        refresh = create_refresh_token(identity=admin_user.email)
-        access = create_access_token(identity=admin_user.email)
+        refresh = create_refresh_token(identity=admin_user.id)
+        access = create_access_token(identity=admin_user.id)
         return jsonify({
             'refresh': refresh,
             'access': access,
@@ -63,9 +64,14 @@ def login_admin():
     return jsonify({'error': 'Wrong credentials'}), HTTP_401_UNAUTHORIZED
 
 
+@jwt_required()
 @admin_managing.post('/create_category')
 def create_category():
     """Process POST request and create category."""
+    current_user = get_jwt_identity()
+    user = User.query.filter(id=current_user).first_or_404()
+    if not user.is_staff:
+        return jsonify({'error': 'Permission denied'}), HTTP_403_FORBIDDEN
     name = request.json.get('category')
     if Category.query.filter_by(name=name).first() is not None:
         return jsonify({'message': 'Category already exists'}), HTTP_409_CONFLICT

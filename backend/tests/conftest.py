@@ -9,7 +9,6 @@ from backend.config import TestingConfig
 from backend.db import db
 from backend.accounts.models import User
 from backend.shop.models import Product, Category
-from backend.admin.models import AdminUser
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -80,7 +79,7 @@ def admin():
     email = 'admin@admin.com'
     pwd = 'Test1234'
     hash_pwd = generate_password_hash(pwd)
-    admin = AdminUser(email=email, password=hash_pwd)
+    admin = User(email=email, password=hash_pwd, is_staff=True)
     db.session.add(admin)
     db.session.commit()
     return admin, email, pwd

@@ -2,7 +2,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from backend.accounts.models import User
 from backend.shop.models import Product, Category
-from backend.admin.models import AdminUser
 
 
 class TestModels:
@@ -44,16 +43,3 @@ class TestModels:
         category = Category(name=name)
 
         assert category.name == name
-
-    def test_create_adminuser(self):
-        """Test creating admin"""
-        # GIVEN admin data
-        # WHEN admin is saved
-        # THEN check admin has proper data
-        email = 'test@test.com'
-        pwd = 'Test1234'
-        pwd_hash = generate_password_hash(pwd)
-        admin_user = AdminUser(email=email, password=pwd_hash)
-
-        assert admin_user.email == email
-        assert check_password_hash(admin_user.password, pwd)

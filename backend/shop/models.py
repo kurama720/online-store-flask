@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy import Column, Integer, String, Index, ForeignKey, Text, Numeric, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
@@ -28,8 +26,8 @@ class Product(db.Model):
     description = Column(Text)
     price = Column(Numeric(decimal_return_scale=2), nullable=False)
     available = Column(Boolean, default=True)
-    created = Column(DateTime, default=datetime.now())
-    updated = Column(DateTime, onupdate=datetime.now())
+    created = Column(DateTime, default=db.func.now())
+    updated = Column(DateTime, onupdate=db.func.now())
 
     def __repr__(self):
         return f"Product: {self.name}"
