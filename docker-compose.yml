@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3.4'
 
 services:
 
@@ -6,33 +6,31 @@ services:
     image: postgres
     volumes:
       - ".data/postgres:/var/lib/postgresql/data"
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: store
+      POSTGRES_DB: online_store_flask
       POSTGRES_USER: store
       POSTGRES_PASSWORD: store
     container_name: store_postgres
     ports:
       - "5432:5432"
-    networks:
-      - store_local_services
 
   store_flask:
     image: flask
     build:
       context: .
       dockerfile: Dockerfile
-    command: flask run
     ports:
       - "8000:8000"
+    volumes:
+      - "./backend:/backend"
+    environment:
+      - PYTHONUNBUFFERED=1
     env_file:
       - .env
     container_name: store_flask
-    networks:
-      - store_local_services
     links:
       - store_postgres
-
-networks:
-    store_local_services:
-        name: store_local_services
-        driver: bridge
+    depends_on:
+      - store_postgres

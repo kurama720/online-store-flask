@@ -1,5 +1,9 @@
 FROM python:3.9-slim
 
+ENV PYTHONUNBUFFERED 1
+
+EXPOSE 3000
+
 RUN set -xe \
  && apt-get update -q \
  && apt-get install -y --no-install-recommends gettext poppler-utils\
@@ -11,6 +15,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-WORKDIR /app
+WORKDIR /
 
 CMD flask run
