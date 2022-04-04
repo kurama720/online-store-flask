@@ -6,7 +6,7 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 
 from backend.db import db
-from backend.config import DevelopmentConfig
+from backend.config import ProductionConfig
 from backend.accounts.views import auth
 from backend.shop.views import shop
 from backend.admin.admin import admin
@@ -19,7 +19,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     # Get constants for configuration
     if test_config is None:
-        app.config.from_object(DevelopmentConfig())
+        app.config.from_object(ProductionConfig())
     else:
         app.config.from_object(test_config)
     # Initialize db
