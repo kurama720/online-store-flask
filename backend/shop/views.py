@@ -122,26 +122,29 @@ def update_product(product_id):
     if not current_user == product.owner_id:
         return jsonify({'error': 'Only owner can change the product'}), HTTP_400_BAD_REQUEST
     # Get data if was given else get old data
-    category = request.json.get('category', product.category)
-    name = request.json.get('name', product.category)
+    category_name = request.json.get('category', None)
+    name = request.json.get('name', product.name)
     description = request.json.get('description', product.description)
     price = request.json.get('price', product.price)
     # Validate new data
-    if category is not None:
-        if Category.query.filter_by(name=category).first() is None:
+    # Check if category exists
+    if category_name is not None:
+        category = Category.query.filter_by(name=category_name).first()
+        if category is None:
             return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
+        product.category = category
     if not isinstance(price, (float, int, Decimal)):
         return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
     # Save data
-    product.category = category
     product.name = name
     product.description = description
     product.price = price
 
     db.session.commit()
+    products_category = Category.query.filter_by(id=product.category_id).first()
     return jsonify({
         'id': product.id,
-        'category': product.category,
+        'category': products_category.name if products_category is not None else "Other",
         'name': product.name,
         'description': product.description,
         'price': float(product.price),
@@ -155,10 +158,11 @@ def get_product_by_id(product_id):
     product = Product.query.filter_by(id=product_id).first_or_404()
     # Get product's category
     category = Category.query.filter_by(id=product.category_id).first()
+    owner = User.query.filter_by(id=product.owner_id).first()
     return jsonify({
         'id': product.id,
         'category': category.name if category is not None else 'Other',
-        'owner': User.query.filter_by(id=product.owner_id).first_or_404().email,
+        'owner': owner.email if owner is not None else "Owner's account was deleted",
         'name': product.name,
         'image': product.image,
         'description': product.description,

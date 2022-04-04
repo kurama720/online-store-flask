@@ -55,7 +55,7 @@ class TestShopPositive:
         data_to_update = {'name': 'not a testing product', 'description': 'not a tasty product', 'price': 0}
         response = client.put(f'/shop/update_product/{product.id}',
                               json=data_to_update, headers=headers)
-        expected_msg = {'category': None, 'description': 'not a tasty product',
+        expected_msg = {'category': 'Other', 'description': 'not a tasty product',
                         'price': 0, 'name': 'not a testing product', 'id': product.id}
         msg = response.json
 
