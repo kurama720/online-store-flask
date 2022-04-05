@@ -2,13 +2,14 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /online-store-flask/
+    destination: /home/ubuntu/online-store-flask
+
 hooks:
   BeforeInstall:
-    - location: /start_server.sh
+    - location: install_dependencies.sh
       timeout: 300
       runas: root
-  ApplicationStop:
-    - location: /stop_server.sh
+  AfterInstall:
+    - location: restart_server.sh
       timeout: 300
       runas: root
