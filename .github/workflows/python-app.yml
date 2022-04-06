@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Online store
+
+on:
+  push:
+    branches: 
+    - master
+    - develop
+  pull_request:
+    branches:
+    - master
+    - develop
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.8"
+    - name: Update apt
+      run: |
+        sudo apt-get update
+    - name: Configure apt for docker installation
+      run: |
+        sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        sudo apt update
+    - name: Install docker
+      run: |
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose
+    - name: Create .env file
+      run: |
+        sudo cat example.env > .env
+    - name: Run containers
+      run: |
+        docker-compose up --build -d
+    - name: Test with pytest
+      run: |
+        docker exec store_flask python3 -m pytest backend/tests
