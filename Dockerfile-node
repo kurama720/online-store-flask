@@ -1,6 +1,6 @@
-FROM python:3.9-slim
+FROM node:17.6
 
-ENV PYTHONUNBUFFERED 1
+ARG REACT_APP_API_URL
 
 RUN set -xe \
  && apt-get update -q \
@@ -9,10 +9,12 @@ RUN set -xe \
  && apt-get clean -y \
  && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+COPY frontend/ .
 
-RUN pip install -r requirements.txt
+RUN npm i --save
 
-WORKDIR /
+WORKDIR /frontend
 
-CMD flask run
+EXPOSE 3000
+
+CMD npm start

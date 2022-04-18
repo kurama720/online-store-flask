@@ -34,3 +34,19 @@ services:
       - store_postgres
     depends_on:
       - store_postgres
+
+  store_react:
+    image: node
+    restart: always
+    command: npm start
+    container_name: store_react
+    build:
+      context: .
+      dockerfile: Dockerfile-node
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./frontend:/frontend"
+    stdin_open: true
+    depends_on:
+      - store_flask
