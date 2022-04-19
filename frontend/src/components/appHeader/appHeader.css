@@ -7,8 +7,14 @@
     font-size: 30px;
     border-style: solid;
     border-radius: 10px;
+    background-color: #ff97ab;
 }
 
 .nav-link {
+    color: white;
     margin-right: 10px;
+}
+
+.shop-title {
+    color: white;
 }

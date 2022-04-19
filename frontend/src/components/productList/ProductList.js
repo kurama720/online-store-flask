@@ -1,32 +1,31 @@
 import {useState} from "react";
 import {useEffect} from "react";
-import axios from "axios";
 import ProductListItem from "../productListItem/ProductListItem";
+import useAPIService from "../../services/APIService";
+
+import './productList.css'
 
 const ProductList = () => {
 
-    const [product, setProduct] = useState();
+    const [products, setProducts] = useState([]);
+    const {getAllProducts} = useAPIService();
 
     useEffect (() => {
-      const apiURL = 'http://localhost:8000/shop/products';
-      axios.get(apiURL)
-          .then((res) => {
-              const allProducts = res.data;
-              setProduct(allProducts)
-          })
-    }, [setProduct])
+        getAllProducts().then(obj => setProducts(obj.data.products))
+    }, [])
 
-    // const elements = product.map(item => {
-    //     const {...itemProps} = item
-    //     return (
-    //         <ProductListItem
-    //             key={item.id}
-    //             {...itemProps} />
-    //     )
-    // })
+    const elements = products.map(item => {
+        return (
+            <ProductListItem
+                key={item.id}
+                {...item}
+                />
+        )
+    })
 
     return (
-        <div>
+        <div className='product-list'>
+            {elements}
         </div>
     )
 }
