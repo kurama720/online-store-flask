@@ -1,5 +1,9 @@
+.header {
+    width: 100%;
+}
+
 .header-wrapper {
-    margin: 20px 0 20px 0;
+    margin: 20px auto;
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -7,14 +11,13 @@
     font-size: 30px;
     border-style: solid;
     border-radius: 10px;
-    background-color: #ff97ab;
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .nav-link {
-    color: white;
-    margin-right: 10px;
+    margin-right: 20px;
 }
 
 .shop-title {
-    color: white;
+    color: #0060B6;
 }

@@ -69,13 +69,13 @@ class TestAccountsNegative:
         """Test admin create duplicate category"""
         # GIVEN duplicate category name
         # WHEN category is validated
-        # THEN return status code 409 and 'Category already exists' msg
+        # THEN return status code 409 and 'CategoryListItem already exists' msg
         headers = {
             'Authorization': f'Bearer {token_admin}'
         }
         data = {'category': category.name}
         response = client.post('/admin_managing/create_category', json=data, headers=headers)
-        expected_msg = {'message': 'Category already exists'}
+        expected_msg = {'message': 'CategoryListItem already exists'}
         msg = response.json
 
         assert response.status_code == 409

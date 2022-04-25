@@ -5,7 +5,7 @@ const ProductListItem = (props) => {
     const {name, category, created, price, owner, description} = props
     return (
         <div className="product">
-            <img className='product-photo' src={img404} alt="Product photo"></img>
+            <img className='product-photo' src={img404} alt="Product"></img>
                 <div className="product-info">
                     <p className="product-title">{name}</p>
                     <p className="product-desc">{description}</p>

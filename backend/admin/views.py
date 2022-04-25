@@ -74,9 +74,9 @@ def create_category():
         return jsonify({'error': 'Permission denied'}), HTTP_403_FORBIDDEN
     name = request.json.get('category')
     if Category.query.filter_by(name=name).first() is not None:
-        return jsonify({'message': 'Category already exists'}), HTTP_409_CONFLICT
+        return jsonify({'message': 'CategoryListItem already exists'}), HTTP_409_CONFLICT
 
     category = Category(name=name)
     db.session.add(category)
     db.session.commit()
-    return jsonify({'message': f'Category: {name} was created'}), HTTP_201_CREATED
+    return jsonify({'message': f'CategoryListItem: {name} was created'}), HTTP_201_CREATED

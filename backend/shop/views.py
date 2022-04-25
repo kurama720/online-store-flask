@@ -82,7 +82,7 @@ def get_products():
                 'id': product.id,
                 'category': category.name if category is not None else 'Other',
                 'owner': owner.email if owner is not None else "Owner's account was deleted",
-                'name': product.name,
+                'name': product.name + 'second',
                 'image': product.image,
                 'description': product.description,
                 'price': float(product.price),
@@ -170,3 +170,18 @@ def get_product_by_id(product_id):
         'created': product.created,
         'updated': product.updated
     }), HTTP_200_OK
+
+
+@shop.get('/categories')
+def get_categories():
+    """Process GET request and return categories list"""
+    # Get categories from db
+    categories: list = Category.query.all()
+    categories_list = []
+    for category in categories:
+        # Save category data in the list
+        categories_list.append({
+            'id': category.id,
+            "category": category.name
+            })
+    return jsonify({'categories': categories_list}), HTTP_200_OK

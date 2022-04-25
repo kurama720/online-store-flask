@@ -11,7 +11,7 @@ class Category(db.Model):
     products = relationship('Product', backref='category')
 
     def __repr__(self):
-        return f"Category: {self.name}"
+        return f"CategoryListItem: {self.name}"
 
 
 category_name_index = Index('category_name', Category.name)

@@ -1,5 +1,4 @@
-import {useState} from "react";
-import {useEffect} from "react";
+import {useState, useEffect} from "react";
 import ProductListItem from "../productListItem/ProductListItem";
 import useAPIService from "../../services/APIService";
 

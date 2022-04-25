@@ -37,7 +37,6 @@ services:
 
   store_react:
     image: node
-    restart: always
     command: npm start
     container_name: store_react
     build:
@@ -47,6 +46,8 @@ services:
       - "3000:3000"
     volumes:
       - "./frontend:/frontend"
+    env_file:
+      - frontend/.env
     stdin_open: true
     depends_on:
       - store_flask

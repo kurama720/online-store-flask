@@ -33,13 +33,13 @@ class TestAccountsPositive:
         """Test admin create category"""
         # GIVEN category name
         # WHEN category is validated
-        # THEN save category in db, return status code 201 and 'Category: Test was created' msg
+        # THEN save category in db, return status code 201 and 'CategoryListItem: Test was created' msg
         headers = {
             'Authorization': f'Bearer {token_admin}'
         }
         data = {'category': 'Test'}
         response = client.post('/admin_managing/create_category', json=data, headers=headers)
-        expected_msg = {'message': 'Category: Test was created'}
+        expected_msg = {'message': 'CategoryListItem: Test was created'}
         msg = response.json
 
         assert response.status_code == 201
