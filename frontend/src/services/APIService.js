@@ -1,10 +1,7 @@
 import axios from "axios";
-// import useAxios from "../utils/useAxios";
 
 const useAPIService = () =>  {
     const _apiBase = process.env.REACT_APP_API_URL
-
-    // const api = useAxios()
 
     const getAllProducts = async () => {
         return await axios.get(`${_apiBase}/shop/products`)
@@ -14,7 +11,15 @@ const useAPIService = () =>  {
         return await axios.get(`${_apiBase}/shop/categories`)
     }
 
-    return {getAllProducts, getAllCategories}
+    const loginUser = async (email, password) => {
+        return await axios.post(`${_apiBase}/auth/login`, {email, password})
+    }
+
+    const registerUser = async (email, password) => {
+        return await axios.post(`${_apiBase}/auth/register`, {email, password})
+    }
+
+    return {getAllProducts, getAllCategories, loginUser, registerUser}
 }
 
 export default useAPIService;

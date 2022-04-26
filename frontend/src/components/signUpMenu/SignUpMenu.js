@@ -1,6 +1,8 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 
+import AuthService from "../../services/authService";
+
 import './signUpMenu.css'
 
 const SignUpMenu = () => {
@@ -12,6 +14,8 @@ const SignUpMenu = () => {
     const [errorMessage, setErrorMessage] = useState({});
     const [passwordShown, setPasswordShown] = useState(false);
     const navigate = useNavigate()
+
+    const {register} = AuthService();
 
     const handleChangeEmail = (event) => {
         setEmail(event.target.value)
@@ -34,11 +38,12 @@ const SignUpMenu = () => {
         if (!/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(email) ) {
             setErrorMessage({name: 'email',message: 'Email is invalid'})
         } else if (password.length < 8) {
-            setErrorMessage({name: 'password', message: "Password is too short"});
+            setErrorMessage({name: 'password', message: "Password is too short"})
         } else if (password !== confirmPassword) {
-            setErrorMessage({name: password, message: "Passwords don't match"})
+            setErrorMessage({name: 'password', message: "Passwords don't match"})
         } else {
-            setIsSubmitted(true)
+            register(email, password).then(() => {setIsSubmitted(true)})
+                .catch(() => setErrorMessage({name: 'email', message: 'Email already exists'}))
         }
     }
 

@@ -1,6 +1,8 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 
+import AuthService from "../../services/authService";
+
 import './loginMenu.css'
 
 const LoginMenu = () => {
@@ -11,6 +13,8 @@ const LoginMenu = () => {
     const [errorMessage, setErrorMessage] = useState({});
     const [passwordShown, setPasswordShown] = useState(false);
     const navigate = useNavigate()
+
+    const {login} = AuthService();
 
     const handleChangeEmail = (event) => {
         setEmail(event.target.value)
@@ -26,11 +30,8 @@ const LoginMenu = () => {
 
     const onHandleSubmitted = (event) => {
         event.preventDefault();
-        if (!404) {
-            setIsSubmitted(true)
-        } else {
-            alert('No such user');
-        }
+        login(email, password).then(() => setIsSubmitted(true))
+            .catch(() => setErrorMessage({name: 'password', message: "Wrong credentials"}))
     };
 
     const renderErrorMessage = (name) =>
@@ -68,7 +69,7 @@ const LoginMenu = () => {
     return (
         <div className='login-form'>
             <div className='login-title'>Sign in</div>
-            {isSubmitted ? navigate('/') : renderForm}
+            {isSubmitted ? navigate('/profile') : renderForm}
         </div>
     )
 }
