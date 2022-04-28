@@ -5,6 +5,9 @@ import CatalogPage from "../../pages/catalogPage/CatalogPage";
 import LoginMenu from "../signInMenu/LoginMenu";
 import SignUpMenu from "../signUpMenu/SignUpMenu";
 import RequireAuth from "../../utils/requireAuth";
+import UserProfile from "../userProfile/UserProfile";
+import ProductDetail from "../productDetail/ProductDetail";
+import UploadProduct from "../uploadProduct/UploadProduct";
 
 import './App.css';
 
@@ -14,9 +17,12 @@ const App = () => {
         <div className="App">
           <AppHeader />
           <Routes>
-              <Route path='/' element={<RequireAuth> <CatalogPage /> </RequireAuth>} />
+              <Route path='/catalog' element={<CatalogPage />} />
+              <Route path='/catalog/:productId' element={<ProductDetail />} />
               <Route path='/login' element={ <LoginMenu />} />
               <Route path='/register' element={ <SignUpMenu />} />
+              <Route path='/profile' element={<RequireAuth> <UserProfile/> </RequireAuth>} />
+              <Route path='/catalog/upload' element={<RequireAuth> <UploadProduct /> </RequireAuth>} />
           </Routes>
         </div>
         </BrowserRouter>

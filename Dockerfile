@@ -4,15 +4,16 @@ ENV PYTHONUNBUFFERED 1
 
 RUN set -xe \
  && apt-get update -q \
- && apt-get install -y --no-install-recommends gettext poppler-utils\
  && apt-get autoremove -y \
  && apt-get clean -y \
  && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+COPY ./requirements.txt ./
 
 RUN pip install -r requirements.txt
 
-WORKDIR /
+WORKDIR /backend
+
+EXPOSE 8000
 
 CMD flask run

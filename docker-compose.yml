@@ -23,21 +23,17 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    volumes:
-      - "./backend:/backend"
     environment:
       - PYTHONUNBUFFERED=1
+    volumes:
+      - "./backend:/backend"
     env_file:
       - .env
     container_name: store_flask
-    links:
-      - store_postgres
     depends_on:
       - store_postgres
 
   store_react:
-    image: node
-    command: npm start
     container_name: store_react
     build:
       context: .
@@ -48,6 +44,5 @@ services:
       - "./frontend:/frontend"
     env_file:
       - frontend/.env
-    stdin_open: true
     depends_on:
       - store_flask

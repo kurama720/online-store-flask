@@ -1,16 +1,17 @@
 import {useState, useEffect} from "react";
+
 import ProductListItem from "../productListItem/ProductListItem";
 import useAPIService from "../../services/APIService";
 
 import './productList.css'
 
 const ProductList = () => {
-
     const [products, setProducts] = useState([]);
     const {getAllProducts} = useAPIService();
 
     useEffect (() => {
-        getAllProducts().then(obj => setProducts(obj.data.products))
+        getAllProducts().then(response => setProducts(response.data.products))
+        //eslint-disable-next-line
     }, [])
 
     const elements = products.map(item => {

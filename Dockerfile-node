@@ -4,17 +4,16 @@ ARG REACT_APP_API_URL
 
 RUN set -xe \
  && apt-get update -q \
- && apt-get install -y --no-install-recommends gettext poppler-utils\
  && apt-get autoremove -y \
  && apt-get clean -y \
  && rm -rf /var/lib/apt/lists/*
 
-COPY frontend/ .
+COPY frontend/package*.json ./
 
 RUN npm i --save
 
-WORKDIR /frontend
-
 EXPOSE 3000
+
+WORKDIR /frontend
 
 CMD npm start

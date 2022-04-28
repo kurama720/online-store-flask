@@ -33,7 +33,7 @@ def create_app(test_config=None):
     JWTManager(app)
     # Initialize admin
     admin.init_app(app)
-    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+    CORS(app, resources={r"/*": {"origins": r"http://localhost:3000/*"}})
     # Register services
     app.register_blueprint(auth)
     app.register_blueprint(shop)

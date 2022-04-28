@@ -26,7 +26,7 @@ const AppHeader = () => {
     )
 
     useEffect(() => {
-        (isLogged() ? setLinks(renderLoggedIn) : setLinks(renderAnonymous))
+        isLogged() ? setLinks(renderLoggedIn) : setLinks(renderAnonymous)
     }, [links])
 
     return (
@@ -36,7 +36,8 @@ const AppHeader = () => {
                     Online store
                 </div>
                 <div className="nav-bar">
-                    <Link className="nav-link" to="/">Catalog</Link>
+                    <Link className="nav-link" to="/catalog">Catalog</Link>
+                    <Link className="nav-link" to='/catalog/upload'>Upload product</Link>
                     {links}
                     <Link className="nav-link" to="#">Cart</Link>
                 </div>

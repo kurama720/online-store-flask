@@ -1,9 +1,10 @@
 import os
 from decimal import Decimal
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from werkzeug.utils import secure_filename, safe_join
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import desc
 
 from backend.shop.models import Category, Product
 from backend.accounts.models import User
@@ -28,18 +29,19 @@ def upload_product():
     # Get owner id
     current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
     # Get data of product
-    category: str = request.json.get('category', None)
-    name: str = request.json.get('name')
+    category: str = request.form.get('category', None)
+    name: str = request.form.get('name')
     image = request.files.get('image')
-    description: str = request.json.get('description')
-    price: (float, int) = request.json.get('price')
+    description: str = request.form.get('description')
+    price: (float, int) = request.form.get('price')
     # Validate data of product
     if category is not None:
         if Category.query.filter_by(name=category).first() is None:
             return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
     # Check if price is numeric and can be float
-    if not isinstance(price, (float, int, Decimal)):
-        return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
+    float(price)
+#     if not isinstance(price, (float, int, Decimal)):
+#         return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
     # Check if image was uploaded
     if image is not None:
         # Validate image
@@ -71,7 +73,7 @@ def upload_product():
 def get_products():
     """Process GET request and return product list"""
     # Get products from db
-    products: list = Product.query.all()
+    products: list = Product.query.order_by(desc(Product.created)).all()
     products_list = []
     for product in products:
         # Save product data in the list
@@ -82,7 +84,7 @@ def get_products():
                 'id': product.id,
                 'category': category.name if category is not None else 'Other',
                 'owner': owner.email if owner is not None else "Owner's account was deleted",
-                'name': product.name + 'second',
+                'name': product.name,
                 'image': product.image,
                 'description': product.description,
                 'price': float(product.price),
@@ -185,3 +187,8 @@ def get_categories():
             "category": category.name
             })
     return jsonify({'categories': categories_list}), HTTP_200_OK
+
+
+@shop.get('/image/<path>')
+def get_image(path):
+    return send_file(path, mimetype='image/png')
