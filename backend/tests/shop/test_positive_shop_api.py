@@ -10,7 +10,7 @@ class TestShopPositive:
         headers = {
             'Authorization': f'Bearer {token_user}'
         }
-        response = client.post('/shop/upload_product', json=product_data, headers=headers)
+        response = client.post('/shop/upload_product', data=product_data, headers=headers)
         expected_msg = {'Product': 'product', 'message': 'Product uploaded'}
         msg = response.json
 

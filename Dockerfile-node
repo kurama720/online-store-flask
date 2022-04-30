@@ -1,19 +1,15 @@
-FROM node:17.6
-
-ARG REACT_APP_API_URL
-
-RUN set -xe \
- && apt-get update -q \
- && apt-get autoremove -y \
- && apt-get clean -y \
- && rm -rf /var/lib/apt/lists/*
-
-COPY frontend/package*.json ./
-
-RUN npm i --save
+FROM node:17.9-slim
 
 EXPOSE 3000
 
+ARG REACT_APP_API_URL
+
+COPY frontend/package*.json ./
+
+RUN npm cache clear --force
+
+RUN npm i --save
+
 WORKDIR /frontend
 
-CMD npm start
+CMD ["npm", "start"]

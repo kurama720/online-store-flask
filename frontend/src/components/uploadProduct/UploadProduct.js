@@ -9,7 +9,7 @@ const UploadProduct = () => {
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
     const [image, setImage] = useState('');
-    const [price, setPrice] = useState(0);
+    const [price, setPrice] = useState('');
     const [categoryOption, setCategoryOption] = useState([]);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [errorMessage, setErrorMessage] = useState({});
@@ -30,11 +30,7 @@ const UploadProduct = () => {
     }
 
     const handleChangeImage = async (event) => {
-        // const file = event.target.files[0];
-        // let reader = new FileReader();
-        // reader.onload = function (event) {
-            setImage(event.target.files[0])
-        // }
+        setImage(event.target.files[0])
     }
 
     const handleChangePrice = (event) => {
@@ -66,7 +62,7 @@ const UploadProduct = () => {
             setErrorMessage({name: 'name', message: 'Name is required'})
         } else {
             let formData = new FormData();
-            formData.append('image', image)
+            formData.append('image', image, name)
             formData.append('name', name)
             formData.append('price', price)
             formData.append('category', category)
@@ -104,7 +100,7 @@ const UploadProduct = () => {
             </div>
             <div className='upload-input'>
                 <label className='upload-label'>Price</label>
-                <input value={price} name='price' onChange={handleChangePrice}/>
+                <input type='number' name='price' onChange={handleChangePrice}/>
                 {renderErrorMessage('price')}
             </div>
             <div className='upload-button'>

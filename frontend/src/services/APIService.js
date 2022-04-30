@@ -6,6 +6,8 @@ import authService from "./authService";
 const useAPIService = () =>  {
     const _apiBase = process.env.REACT_APP_API_URL
 
+    const _s3URL = 'https://onlinestore-media-images.s3.eu-central-1.amazonaws.com/'
+
     const getAllProducts = async () => {
         return await axios.get(`${_apiBase}/shop/products`)
     }
@@ -38,13 +40,7 @@ const useAPIService = () =>  {
             }})
     }
 
-    const getProductImage = async (path) => {
-        return await axios.get(`${_apiBase}/shop/image/${path}`, {headers: {
-            'Content-type': 'image/png'
-            }})
-    }
-
-    return {getAllProducts, getOneProduct, getAllCategories, loginUser, registerUser, getUserInfo, uploadProduct, getProductImage}
+    return {getAllProducts, getOneProduct, getAllCategories, loginUser, registerUser, getUserInfo, uploadProduct, _s3URL}
 }
 
 export default useAPIService;

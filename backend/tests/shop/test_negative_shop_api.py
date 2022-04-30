@@ -15,7 +15,7 @@ class TestShopNegative:
         headers = {
             'Authorization': f'Bearer {token_user}'
         }
-        response = client.post('/shop/upload_product', json=product_data, headers=headers)
+        response = client.post('/shop/upload_product', data=product_data, headers=headers)
         expected_msg = {'error': 'No such category'}
         msg = response.json
 
@@ -31,7 +31,7 @@ class TestShopNegative:
         headers = {
             'Authorization': f'Bearer {token_user}'
         }
-        response = client.post('/shop/upload_product', json=product_data, headers=headers)
+        response = client.post('/shop/upload_product', data=product_data, headers=headers)
         expected_msg = {'error': 'Price must be numeric'}
         msg = response.json
 

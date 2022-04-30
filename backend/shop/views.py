@@ -1,15 +1,16 @@
-import os
 from decimal import Decimal
 
 from flask import Blueprint, request, jsonify, send_file
-from werkzeug.utils import secure_filename, safe_join
+from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import desc
+from sqlalchemy.exc import DataError
 
 from backend.shop.models import Category, Product
 from backend.accounts.models import User
 from backend.constants.http_response_codes import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
 from backend.db import db
+from backend.services.connect_aws import s3, BUCKET_NAME
 
 
 shop = Blueprint('shop', __name__, url_prefix='/shop')
@@ -26,47 +27,44 @@ def allowed_image(filename):
 @jwt_required()
 def upload_product():
     """Process POST request and create product."""
-    # Get owner id
-    current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
-    # Get data of product
-    category: str = request.form.get('category', None)
-    name: str = request.form.get('name')
-    image = request.files.get('image')
-    description: str = request.form.get('description')
-    price: (float, int) = request.form.get('price')
-    # Validate data of product
-    if category is not None:
-        if Category.query.filter_by(name=category).first() is None:
-            return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
-    # Check if price is numeric and can be float
-    float(price)
-#     if not isinstance(price, (float, int, Decimal)):
-#         return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
-    # Check if image was uploaded
-    if image is not None:
-        # Validate image
-        if not allowed_image(image.filename):
-            return jsonify({'error': 'An image should be .png, .jpeg or .jpg'}), HTTP_400_BAD_REQUEST
-        # Create media dir if doesn't exist
-        os.makedirs(os.environ.get('UPLOAD_FOLDER') + 'products/', exist_ok=True)
-        # Create secure filename, path to file and save it
-        image_name: str = secure_filename(image.filename)
-        image_path: str = safe_join(os.environ.get('UPLOAD_FOLDER') + 'products', image_name)
-        image.save(image_path)
-    else:
-        # Save None if no image was given
-        image_path = None
-    # Save product
-    product = Product(category=Category.query.filter_by(name=category).first(),
-                      owner=current_user,
-                      name=name,
-                      image=image_path,
-                      description=description,
-                      price=price)
+    try:
+        # Get owner id
+        current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
+        # Get data of product
+        category: str = request.form.get('category', None)
+        name: str = request.form.get('name')
+        image = request.files.get('image')
+        description: str = request.form.get('description')
+        price: (float, int) = request.form.get('price')
+        # Validate data of product
+        if category is not None:
+            if Category.query.filter_by(name=category).first() is None:
+                return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
+        # Check if image was uploaded
+        if image is not None:
+            filename = secure_filename(image.filename)
+            s3.put_object(
+                Bucket=BUCKET_NAME,
+                Key=filename,
+                Body=image,
+                Tagging='public=yes',
+                ContentType='image/png'
+            )
+        else:
+            filename = None
+        # Save product
+        product = Product(category=Category.query.filter_by(name=category).first(),
+                          owner=current_user,
+                          name=name,
+                          image=filename,
+                          description=description,
+                          price=float(price))
 
-    db.session.add(product)
-    db.session.commit()
-    return jsonify({"message": 'Product uploaded', 'Product': name}), HTTP_201_CREATED
+        db.session.add(product)
+        db.session.commit()
+        return jsonify({"message": 'Product uploaded', 'Product': name}), HTTP_201_CREATED
+    except (DataError, ValueError):
+        return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
 
 
 @shop.get('/products')
@@ -191,4 +189,6 @@ def get_categories():
 
 @shop.get('/image/<path>')
 def get_image(path):
+    # product = Product.query.filter_by(id=4).first()
+    # print(path)
     return send_file(path, mimetype='image/png')

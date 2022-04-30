@@ -8,7 +8,7 @@ import './productDetail.css'
 
 const ProductDetail = () => {
     const [product, setProduct] = useState({});
-    const {getOneProduct} = useAPIService();
+    const {getOneProduct, _s3URL} = useAPIService();
     const {productId} = useParams();
 
     useEffect(() => {
@@ -19,7 +19,7 @@ const ProductDetail = () => {
     }, [])
     return (
         <div className='detail-wrapper'>
-            <img src={product.image ? product.image : img404} alt='Product illustration' className='detail-photo'></img>
+            <img src={product.image ? _s3URL + product.image : img404} alt='Product illustration' className='detail-photo'></img>
             <div className='detail-item'><span className='detail-property'>Name</span>: {product.name}</div>
             <div className='detail-item'><span className='detail-property'>Description</span>: {product.description}</div>
             <div className='detail-item'><span className='detail-property'>Price</span>: {product.price}$</div>
