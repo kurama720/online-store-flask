@@ -1,21 +1,24 @@
 import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+
 import useAPIService from "../../services/APIService";
 
-import './uploadProduct.css'
+import './editProduct.css'
 
-const UploadProduct = () => {
+const EditProduct = () => {
+    const [categoryOption, setCategoryOption] = useState([]);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [errorMessage, setErrorMessage] = useState({});
+
+    const {getAllCategories, getOneProduct, editProduct} = useAPIService();
+    const navigate = useNavigate()
+    const {productId} = useParams()
+
     const [name, setName] = useState('');
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
     const [image, setImage] = useState('');
     const [price, setPrice] = useState('');
-    const [categoryOption, setCategoryOption] = useState([]);
-    const [isSubmitted, setIsSubmitted] = useState(false);
-    const [errorMessage, setErrorMessage] = useState({});
-
-    const {getAllCategories, uploadProduct} = useAPIService();
-    const navigate = useNavigate()
 
     const handleChangeName = (event) => {
         setName(event.target.value)
@@ -34,10 +37,18 @@ const UploadProduct = () => {
     }
 
     const handleChangePrice = (event) => {
-        setPrice(Number(event.target.value))
+        setPrice(event.target.value)
     }
 
-    useEffect (() => {
+    useEffect(() => {
+        getOneProduct(productId).then(response => {
+            const product = response.data
+            setName(product.name)
+            setDescription(product.description)
+            setImage(product.image)
+            setPrice(product.price)
+            setCategory(product.category)
+        })
         getAllCategories().then(response => setCategoryOption(response.data.categories))
         //eslint-disable-next-line
     }, [])
@@ -52,6 +63,7 @@ const UploadProduct = () => {
         name === errorMessage.name && (
             <div className='login-error'>{errorMessage.message}</div>
         );
+
     const onHandleSubmitted = (event) => {
         event.preventDefault();
         if (category.length === 0) {
@@ -69,11 +81,9 @@ const UploadProduct = () => {
             formData.append('price', price)
             formData.append('category', category)
             formData.append('description', description)
-            uploadProduct(formData)
+            editProduct(formData, productId)
                 .then(() => setIsSubmitted(true))
-                .catch((err) => {
-                    setErrorMessage({name: 'submit', message: "Something went wrong"})
-                })
+                .catch(() => setErrorMessage({name: 'submit', message: "Something went wrong"}))
         }
     }
 
@@ -87,7 +97,7 @@ const UploadProduct = () => {
             <div className='upload-input'>
                 <label className='upload-label'>Category</label>
                 <select value={category} name='category' onChange={handleChangeCategory}>
-                    <option>...</option>
+                    <option value={category}>{category}</option>
                     {categoryElements}
                 </select>
                 {renderErrorMessage('category')}
@@ -104,7 +114,7 @@ const UploadProduct = () => {
             </div>
             <div className='upload-input'>
                 <label className='upload-label'>Price</label>
-                <input placeholder='2.49' type='number' step='0.01' name='price' onChange={handleChangePrice}/>
+                <input placeholder='2.49' type='number' step='0.01' value={price} name='price' onChange={handleChangePrice}/>
                 {renderErrorMessage('price')}
             </div>
             <div className='upload-button'>
@@ -117,9 +127,9 @@ const UploadProduct = () => {
     return (
         <div className='upload-form'>
             <div className='upload-title'>Upload product</div>
-            {isSubmitted ? navigate('/catalog') : renderForm}
+            {isSubmitted ? navigate(`../profile`) : renderForm}
         </div>
     )
 }
 
-export default UploadProduct;
+export default EditProduct;

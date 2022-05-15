@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from flask import Blueprint, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -71,7 +69,16 @@ def upload_product():
 def get_products():
     """Process GET request and return product list"""
     # Get products from db
-    products: list = Product.query.order_by(desc(Product.created)).all()
+    args = request.args
+    category = args.get('category')
+    if category and category != 'Other':
+        category = Category.query.filter_by(name=category).first()
+        products: list = Product.query.filter_by(category_id=category.id).order_by(desc(Product.created)).all()
+    elif category == 'Other':
+        products: list = Product.query.filter_by(category_id=None).order_by(desc(Product.created)).all()
+    else:
+        products: list = Product.query.order_by(desc(Product.created)).all()
+
     products_list = []
     for product in products:
         # Save product data in the list
@@ -122,19 +129,18 @@ def update_product(product_id):
     if not current_user == product.owner_id:
         return jsonify({'error': 'Only owner can change the product'}), HTTP_400_BAD_REQUEST
     # Get data if was given else get old data
-    category_name = request.json.get('category', None)
-    name = request.json.get('name', product.name)
-    description = request.json.get('description', product.description)
-    price = request.json.get('price', product.price)
+    category_name = request.form.get('category', None)
+    name = request.form.get('name', product.name)
+    description = request.form.get('description', product.description)
+    price = request.form.get('price', product.price)
     # Validate new data
     # Check if category exists
     if category_name is not None:
         category = Category.query.filter_by(name=category_name).first()
+        print(category)
         if category is None:
             return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
         product.category = category
-    if not isinstance(price, (float, int, Decimal)):
-        return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
     # Save data
     product.name = name
     product.description = description
@@ -185,10 +191,3 @@ def get_categories():
             "category": category.name
             })
     return jsonify({'categories': categories_list}), HTTP_200_OK
-
-
-@shop.get('/image/<path>')
-def get_image(path):
-    # product = Product.query.filter_by(id=4).first()
-    # print(path)
-    return send_file(path, mimetype='image/png')

@@ -6,10 +6,11 @@ import authService from "../../services/authService";
 
 import './appHeader.css'
 
-const AppHeader = () => {
+const AppHeader = (props) => {
     const {logout} = authService();
-    const [links, setLinks] = useState((<></>));
+    const [logged, setLogged] = useState(false);
 
+    const {totalPrice} = props
 
     const renderLoggedIn = (
         <>
@@ -26,8 +27,8 @@ const AppHeader = () => {
     )
 
     useEffect(() => {
-        isLogged() ? setLinks(renderLoggedIn) : setLinks(renderAnonymous)
-    }, [links])
+        isLogged() ? setLogged(true) : setLogged(false)
+    }, [])
 
     return (
         <header className="header">
@@ -38,8 +39,8 @@ const AppHeader = () => {
                 <div className="nav-bar">
                     <Link className="nav-link" to="/catalog">Catalog</Link>
                     <Link className="nav-link" to='/catalog/upload'>Upload product</Link>
-                    {links}
-                    <Link className="nav-link" to="#">Cart</Link>
+                    {logged ? renderLoggedIn : renderAnonymous}
+                    <Link className="nav-link" to="/cart">Cart (${totalPrice.toFixed(2)})</Link>
                 </div>
             </div>
         </header>

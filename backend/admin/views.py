@@ -65,18 +65,13 @@ def login_admin():
 
 
 @admin_managing.post('/create_category')
-@jwt_required()
 def create_category():
     """Process POST request and create category."""
-    current_user = get_jwt_identity()
-    user = User.query.filter_by(id=current_user).first_or_404()
-    if not user.is_staff:
-        return jsonify({'error': 'Permission denied'}), HTTP_403_FORBIDDEN
-    name = request.json.get('category')
+    name = request.json.get('name')
     if Category.query.filter_by(name=name).first() is not None:
-        return jsonify({'message': 'CategoryListItem already exists'}), HTTP_409_CONFLICT
+        return jsonify({'message': f'Category: {name} already exists'}), HTTP_409_CONFLICT
 
     category = Category(name=name)
     db.session.add(category)
     db.session.commit()
-    return jsonify({'message': f'CategoryListItem: {name} was created'}), HTTP_201_CREATED
+    return jsonify({'message': f'Category: {name} was created'}), HTTP_201_CREATED

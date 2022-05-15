@@ -1,4 +1,5 @@
 import './category.css'
+import {Link} from "react-router-dom";
 
 const CategoryListItem = (props) => {
     let {category} = props
@@ -9,7 +10,7 @@ const CategoryListItem = (props) => {
     return (
         <li>
             <div className='category'>
-                <a href='#'>{category}</a>
+                <Link to={`/catalog?category=${category}`}>{category}</Link>
             </div>
         </li>
     )

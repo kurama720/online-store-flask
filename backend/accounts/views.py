@@ -67,7 +67,7 @@ def login():
 def token_refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
-    return jsonify({'token': access_token}), HTTP_201_CREATED
+    return jsonify({'access': access_token}), HTTP_201_CREATED
 
 
 @auth.get('/info')

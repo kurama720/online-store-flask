@@ -18,10 +18,6 @@ FROM python:3.9-slim
 
 EXPOSE 8000
 
-#COPY ./requirements.txt ./
-#
-#RUN pip install -r requirements.txt
-
 WORKDIR /backend
 
 COPY --from=builder /backend/wheels /wheels
@@ -29,6 +25,5 @@ COPY --from=builder /backend/wheels /wheels
 COPY --from=builder /backend/requirements.txt .
 
 RUN pip install --no-cache /wheels/*
-
 
 CMD ["flask", "run"]

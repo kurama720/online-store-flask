@@ -3,12 +3,13 @@ import ProductList from "../../components/productList/ProductList";
 
 import './catalogPage.css'
 
-const CatalogPage = () => {
+const CatalogPage = (props) => {
+    const {handleCartAdd, handleCartRemove, cartProducts} = props
 
     return (
         <div className='wrapper-shop'>
             <CategoryList />
-            <ProductList />
+            <ProductList cartProducts={cartProducts} handleCartAdd={handleCartAdd} handleCartRemove={handleCartRemove} />
         </div>
     );
 }

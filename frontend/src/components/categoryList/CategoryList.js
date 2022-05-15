@@ -1,3 +1,4 @@
+import {Link} from "react-router-dom";
 import {useState, useEffect} from "react";
 
 import useAPIService from "../../services/APIService";
@@ -12,6 +13,7 @@ const CategoryList = () => {
 
     useEffect (() => {
         getAllCategories().then(obj => setCategories(obj.data.categories))
+        //eslint-disable-next-line
     }, [])
 
     const elements = categories.map(item => {
@@ -28,9 +30,10 @@ const CategoryList = () => {
             <p>Categories:</p>
 
             <ul>
-                <li><a href='#'>All</a></li>
+                <li><Link to='/catalog'>All</Link></li>
                 {elements}
             </ul>
+            <Link to='/create_category'>Create category</Link>
         </div>
     )
 }

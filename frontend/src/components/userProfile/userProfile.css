@@ -10,6 +10,22 @@
     margin-bottom: 20px;
 }
 
+.email-text {
+    color: #0060B6;
+}
+
 .profile-list-item {
     margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.manage-icon {
+    padding: 20px;
+    font-size: 30px;
+    width: 40px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 25%;
 }
