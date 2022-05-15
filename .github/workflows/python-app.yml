@@ -42,9 +42,12 @@ jobs:
     - name: Create .env file
       run: |
         sudo cat example.env > .env
+    - name: Create front end .env file
+      run : |
+        sudo cat frontend/example.env > frontend/.env
     - name: Run containers
       run: |
         docker-compose up --build -d
     - name: Test with pytest
       run: |
-        docker exec store_flask python3 -m pytest backend/tests
+        docker exec store_flask /bin/sh -c 'cd ..; python3 -m pytest backend/tests'

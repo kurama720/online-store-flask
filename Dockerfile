@@ -1,20 +1,29 @@
-FROM python:3.9-slim
+FROM python:3.9-slim as builder
 
 ENV PYTHONUNBUFFERED 1
 
-EXPOSE 3000
+WORKDIR /backend
 
 RUN set -xe \
  && apt-get update -q \
- && apt-get install -y --no-install-recommends gettext poppler-utils\
  && apt-get autoremove -y \
  && apt-get clean -y \
  && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /backend/wheels -r requirements.txt
 
-WORKDIR /
+FROM python:3.9-slim
 
-CMD flask run
+EXPOSE 8000
+
+WORKDIR /backend
+
+COPY --from=builder /backend/wheels /wheels
+
+COPY --from=builder /backend/requirements.txt .
+
+RUN pip install --no-cache /wheels/*
+
+CMD ["flask", "run"]

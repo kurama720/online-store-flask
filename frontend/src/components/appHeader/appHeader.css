@@ -1,0 +1,24 @@
+.header {
+    width: 100%;
+}
+
+.header-wrapper {
+    margin: 20px auto;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.nav-link:not(:last-child) {
+    margin-right: 20px;
+    padding-right: 20px;
+    border-right-style: solid;
+}
+
+.shop-title {
+    color: #0060B6;
+}

@@ -1,14 +1,14 @@
-import os
-from decimal import Decimal
-
-from flask import Blueprint, request, jsonify
-from werkzeug.utils import secure_filename, safe_join
+from flask import Blueprint, request, jsonify, send_file
+from werkzeug.utils import secure_filename
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import desc
+from sqlalchemy.exc import DataError
 
 from backend.shop.models import Category, Product
 from backend.accounts.models import User
 from backend.constants.http_response_codes import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
 from backend.db import db
+from backend.services.connect_aws import s3, BUCKET_NAME
 
 
 shop = Blueprint('shop', __name__, url_prefix='/shop')
@@ -25,53 +25,60 @@ def allowed_image(filename):
 @jwt_required()
 def upload_product():
     """Process POST request and create product."""
-    # Get owner id
-    current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
-    # Get data of product
-    category: str = request.json.get('category', None)
-    name: str = request.json.get('name')
-    image = request.files.get('image')
-    description: str = request.json.get('description')
-    price: (float, int) = request.json.get('price')
-    # Validate data of product
-    if category is not None:
-        if Category.query.filter_by(name=category).first() is None:
-            return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
-    # Check if price is numeric and can be float
-    if not isinstance(price, (float, int, Decimal)):
-        return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
-    # Check if image was uploaded
-    if image is not None:
-        # Validate image
-        if not allowed_image(image.filename):
-            return jsonify({'error': 'An image should be .png, .jpeg or .jpg'}), HTTP_400_BAD_REQUEST
-        # Create media dir if doesn't exist
-        os.makedirs(os.environ.get('UPLOAD_FOLDER') + 'products/', exist_ok=True)
-        # Create secure filename, path to file and save it
-        image_name: str = secure_filename(image.filename)
-        image_path: str = safe_join(os.environ.get('UPLOAD_FOLDER') + 'products', image_name)
-        image.save(image_path)
-    else:
-        # Save None if no image was given
-        image_path = None
-    # Save product
-    product = Product(category=Category.query.filter_by(name=category).first(),
-                      owner=current_user,
-                      name=name,
-                      image=image_path,
-                      description=description,
-                      price=price)
+    try:
+        # Get owner id
+        current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
+        # Get data of product
+        category: str = request.form.get('category', None)
+        name: str = request.form.get('name')
+        image = request.files.get('image')
+        description: str = request.form.get('description')
+        price: (float, int) = request.form.get('price')
+        # Validate data of product
+        if category is not None:
+            if Category.query.filter_by(name=category).first() is None:
+                return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
+        # Check if image was uploaded
+        if image is not None:
+            filename = secure_filename(image.filename)
+            s3.put_object(
+                Bucket=BUCKET_NAME,
+                Key=filename,
+                Body=image,
+                Tagging='public=yes',
+                ContentType='image/png'
+            )
+        else:
+            filename = None
+        # Save product
+        product = Product(category=Category.query.filter_by(name=category).first(),
+                          owner=current_user,
+                          name=name,
+                          image=filename,
+                          description=description,
+                          price=float(price))
 
-    db.session.add(product)
-    db.session.commit()
-    return jsonify({"message": 'Product uploaded', 'Product': name}), HTTP_201_CREATED
+        db.session.add(product)
+        db.session.commit()
+        return jsonify({"message": 'Product uploaded', 'Product': name}), HTTP_201_CREATED
+    except (DataError, ValueError):
+        return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
 
 
 @shop.get('/products')
 def get_products():
     """Process GET request and return product list"""
     # Get products from db
-    products: list = Product.query.all()
+    args = request.args
+    category = args.get('category')
+    if category and category != 'Other':
+        category = Category.query.filter_by(name=category).first()
+        products: list = Product.query.filter_by(category_id=category.id).order_by(desc(Product.created)).all()
+    elif category == 'Other':
+        products: list = Product.query.filter_by(category_id=None).order_by(desc(Product.created)).all()
+    else:
+        products: list = Product.query.order_by(desc(Product.created)).all()
+
     products_list = []
     for product in products:
         # Save product data in the list
@@ -122,19 +129,18 @@ def update_product(product_id):
     if not current_user == product.owner_id:
         return jsonify({'error': 'Only owner can change the product'}), HTTP_400_BAD_REQUEST
     # Get data if was given else get old data
-    category_name = request.json.get('category', None)
-    name = request.json.get('name', product.name)
-    description = request.json.get('description', product.description)
-    price = request.json.get('price', product.price)
+    category_name = request.form.get('category', None)
+    name = request.form.get('name', product.name)
+    description = request.form.get('description', product.description)
+    price = request.form.get('price', product.price)
     # Validate new data
     # Check if category exists
     if category_name is not None:
         category = Category.query.filter_by(name=category_name).first()
+        print(category)
         if category is None:
             return jsonify({'error': 'No such category'}), HTTP_400_BAD_REQUEST
         product.category = category
-    if not isinstance(price, (float, int, Decimal)):
-        return jsonify({'error': 'Price must be numeric'}), HTTP_400_BAD_REQUEST
     # Save data
     product.name = name
     product.description = description
@@ -170,3 +176,18 @@ def get_product_by_id(product_id):
         'created': product.created,
         'updated': product.updated
     }), HTTP_200_OK
+
+
+@shop.get('/categories')
+def get_categories():
+    """Process GET request and return categories list"""
+    # Get categories from db
+    categories: list = Category.query.all()
+    categories_list = []
+    for category in categories:
+        # Save category data in the list
+        categories_list.append({
+            'id': category.id,
+            "category": category.name
+            })
+    return jsonify({'categories': categories_list}), HTTP_200_OK

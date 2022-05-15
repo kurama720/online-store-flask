@@ -10,7 +10,7 @@ class TestShopPositive:
         headers = {
             'Authorization': f'Bearer {token_user}'
         }
-        response = client.post('/shop/upload_product', json=product_data, headers=headers)
+        response = client.post('/shop/upload_product', data=product_data, headers=headers)
         expected_msg = {'Product': 'product', 'message': 'Product uploaded'}
         msg = response.json
 
@@ -54,7 +54,7 @@ class TestShopPositive:
         }
         data_to_update = {'name': 'not a testing product', 'description': 'not a tasty product', 'price': 0}
         response = client.put(f'/shop/update_product/{product.id}',
-                              json=data_to_update, headers=headers)
+                              data=data_to_update, headers=headers)
         expected_msg = {'category': 'Other', 'description': 'not a tasty product',
                         'price': 0, 'name': 'not a testing product', 'id': product.id}
         msg = response.json

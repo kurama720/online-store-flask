@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 from backend.db import db
 from backend.config import ProductionConfig
@@ -32,6 +33,7 @@ def create_app(test_config=None):
     JWTManager(app)
     # Initialize admin
     admin.init_app(app)
+    CORS(app, resources={r"/*": {"origins": r"*"}})
     # Register services
     app.register_blueprint(auth)
     app.register_blueprint(shop)

@@ -1,3 +1,5 @@
+import operator
+
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
 import validators
@@ -55,10 +57,17 @@ def login():
         return jsonify({
             'refresh': refresh,
             'access': access,
-            'user_email': user.email
         }), HTTP_200_OK
 
     return jsonify({'error': 'Wrong credentials'}), HTTP_401_UNAUTHORIZED
+
+
+@auth.post('/token')
+@jwt_required(refresh=True)
+def token_refresh():
+    identity = get_jwt_identity()
+    access_token = create_access_token(identity=identity)
+    return jsonify({'access': access_token}), HTTP_201_CREATED
 
 
 @auth.get('/info')
@@ -67,8 +76,11 @@ def account_info():
     """Process GET request and return user's info"""
     # Get user by token
     current_user = User.query.filter_by(id=get_jwt_identity()).first_or_404()
+    owned_products = []
+    for product in current_user.products:
+        owned_products.append({'id': product.id, 'name': product.name, 'created': product.created})
     return jsonify({
         "user": {
             'email': current_user.email,
-            'products': [product.id for product in current_user.products]
+            'products': sorted(owned_products, key=operator.itemgetter('created'), reverse=True)
         }})

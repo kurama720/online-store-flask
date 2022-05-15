@@ -37,7 +37,7 @@ class TestAccountsPositive:
         headers = {
             'Authorization': f'Bearer {token_admin}'
         }
-        data = {'category': 'Test'}
+        data = {'name': 'Test'}
         response = client.post('/admin_managing/create_category', json=data, headers=headers)
         expected_msg = {'message': 'Category: Test was created'}
         msg = response.json

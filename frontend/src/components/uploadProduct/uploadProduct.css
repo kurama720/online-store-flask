@@ -1,0 +1,50 @@
+input[type="text"] {
+    height: 25px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+input[type="submit"] {
+    margin-top: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    background: #0060B6;
+    border: 1px solid #01d28e;
+    color: #fff;
+    padding: 10px 20px;
+}
+
+input[type="submit"]:hover {
+    background: #50abff;
+}
+
+.upload-form {
+    width: 600px;
+    margin: auto;
+    background-color: white;
+    padding: 2rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.upload-title {
+    margin-left: 250px;
+    margin-bottom: 20px;
+    font-size: 25px;
+    color: #0060B6;
+}
+
+.upload-input {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #0060B6;
+}
+
+.upload-error {
+    color: red;
+}
+
+.upload-button {
+    display: flex;
+    justify-content: center;
+}

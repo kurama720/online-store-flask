@@ -1,0 +1,27 @@
+.delete-wrapper {
+    width: 500px;
+    height: 150px;
+    padding: 50px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    font-size: 20px;
+}
+
+.question {
+    margin-left: 50px;
+}
+
+.btn-wrapper {
+    margin-top: 50px;
+    margin-left: 165px;
+}
+
+.btn {
+    margin-right: 25px;
+    cursor: pointer;
+    font-size: 15px;
+    background: #0060B6;
+    border: 1px solid #01d28e;
+    color: #fff;
+    padding: 10px 20px;
+}

@@ -1,0 +1,23 @@
+.detail-wrapper {
+    width: 500px;
+    min-height: 500px;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    font-size: 20px;
+}
+
+.detail-photo {
+    width: 400px;
+    margin-left: 50px;
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.detail-property {
+    color: #0060B6;
+}

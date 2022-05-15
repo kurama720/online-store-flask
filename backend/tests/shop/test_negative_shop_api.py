@@ -15,7 +15,7 @@ class TestShopNegative:
         headers = {
             'Authorization': f'Bearer {token_user}'
         }
-        response = client.post('/shop/upload_product', json=product_data, headers=headers)
+        response = client.post('/shop/upload_product', data=product_data, headers=headers)
         expected_msg = {'error': 'No such category'}
         msg = response.json
 
@@ -31,7 +31,7 @@ class TestShopNegative:
         headers = {
             'Authorization': f'Bearer {token_user}'
         }
-        response = client.post('/shop/upload_product', json=product_data, headers=headers)
+        response = client.post('/shop/upload_product', data=product_data, headers=headers)
         expected_msg = {'error': 'Price must be numeric'}
         msg = response.json
 
@@ -87,23 +87,6 @@ class TestShopNegative:
         assert response.status_code == 400
         assert expected_msg == msg
 
-    def test_update_product_with_invalid_price(self, client, token_user, product):
-        """Test negative update product scenario"""
-        # GIVEN product id and invalid price
-        # WHEN updating product
-        # THEN return status code 400 and 'Price must be number' msg
-        headers = {
-            'Authorization': f'Bearer {token_user}'
-        }
-        data_to_update = {'price': 'wrong price'}
-        response = client.patch(f'/shop/update_product/{product.id}',
-                                json=data_to_update, headers=headers)
-        expected_msg = {'error': 'Price must be numeric'}
-        msg = response.json
-
-        assert response.status_code == 400
-        assert expected_msg == msg
-
     def test_update_with_invalid_category(self, client, token_user, product):
         """Test negative update product scenario"""
         # GIVEN product id and invalid category
@@ -114,7 +97,7 @@ class TestShopNegative:
         }
         data_to_update = {'category': 'Nonexistent category'}
         response = client.patch(f'/shop/update_product/{product.id}',
-                                json=data_to_update, headers=headers)
+                                data=data_to_update, headers=headers)
         expected_msg = {'error': 'No such category'}
         msg = response.json
 
